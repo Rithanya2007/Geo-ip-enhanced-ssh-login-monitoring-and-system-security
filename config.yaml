@@ -1,0 +1,48 @@
+# -----------------------------------------------------------------------
+# GeoIP-Enhanced SSH Login Monitoring - Configuration
+# -----------------------------------------------------------------------
+
+# Path to the sshd log file (ignored if running with --journald)
+log_file: /var/log/auth.log        # Debian/Ubuntu
+# log_file: /var/log/secure        # RHEL/CentOS/Fedora
+
+# Accounts to ignore entirely (e.g. service accounts you don't want alerts for)
+ignore_users:
+  - "invalid"
+
+# GeoIP lookup cache (avoids re-querying the same IP repeatedly)
+geoip_cache_file: state/geoip_cache.json
+geoip_provider: ip-api   # currently only ip-api.com (free, no key) is implemented
+
+# Per-user login history (known countries, last successful login location)
+user_state_file: state/user_state.json
+
+# Flag a login as "impossible travel" if the implied speed between two
+# successful logins exceeds this (km/h). ~900 km/h ≈ commercial jet speed.
+impossible_travel_speed_kmh: 900
+
+# Brute-force / credential-stuffing detection
+brute_force:
+  window_seconds: 120   # sliding window to count failures
+  threshold: 5          # number of failures in the window that triggers an alert
+
+# Where and how alerts get delivered
+alerts:
+  console: true                       # print alerts to stdout
+  alert_log_file: state/alerts.log    # newline-delimited JSON alert log
+
+  email:
+    enabled: false
+    smtp_host: smtp.example.com
+    smtp_port: 587
+    use_tls: true
+    smtp_user: "alerts@example.com"
+    smtp_password: "CHANGE_ME"        # consider using an env var / secrets manager instead
+    from_addr: "alerts@example.com"
+    to_addrs:
+      - "you@example.com"
+
+  webhook:
+    enabled: false
+    url: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+    style: slack   # slack | discord | generic

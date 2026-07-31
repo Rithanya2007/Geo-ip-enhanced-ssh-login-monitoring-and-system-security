@@ -1,0 +1,15 @@
+[Unit]
+Description=GeoIP-Enhanced SSH Login Monitoring
+After=network-online.target sshd.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/geoip-ssh-monitor
+ExecStart=/usr/bin/python3 /opt/geoip-ssh-monitor/ssh_geoip_monitor.py --config /opt/geoip-ssh-monitor/config.yaml --follow
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
